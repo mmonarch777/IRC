@@ -9,6 +9,7 @@
 
 # define WELCOME                1
 
+# define ERR_NORECIPIENT        411
 # define ERR_ERRONEUSNICKNAME	432
 # define ERR_NICKNAMEINUSE		433
 # define ERR_NOTREGISTERED		451
@@ -56,4 +57,6 @@ class Message {
         void    joinToChannel(Client &client, Server &server);
         bool    checkChannel(Server &server, std::string channelName);
         void    creatNewChannel(Server &server, Client &client);
+
+        void    privMsg(Client &client, Server &server);
 };
