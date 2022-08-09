@@ -121,6 +121,11 @@ void	Server::continueConnection(size_t &i) {
 	buf[readed] = 0;
     client.setBuffer(buf);
 	client.execMessage(*this);
+	// if (client.isCheckRegistration()) {
+	// 	sendReply(client, RPL_MOTDSTART);
+	// 	sendReply(client, RPL_MOTD);
+	// 	sendReply(client, RPL_ENDOFMOTD);
+	// }
 	_fds[i].revents = 0;
 }
 

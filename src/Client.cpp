@@ -60,13 +60,18 @@ void    Client::execMessage(Server &server) {
         msg.cmdUser(*this, msg);
     else if (msg.getCommand() == "NICK")
         msg.cmdNick(*this, msg, server);
-    else if (isCheckRegistration()) {
-        if (msg.getCommand() == "JOIN") {
-            msg.joinToChannel(*this, server);
-        }
-    } else {
-        std::cout << "NOT REGISTRETION!" << std::endl;
-    }
+    if (isCheckRegistration()) {
+		msg.sendReply(*this, RPL_MOTDSTART);
+		msg.sendReply(*this, RPL_MOTD);
+		msg.sendReply(*this, RPL_ENDOFMOTD);
+	}
+    // else if (isCheckRegistration()) {
+    //     if (msg.getCommand() == "JOIN") {
+    //         msg.joinToChannel(*this, server);
+    //     }
+    // } else {
+    //     std::cout << "NOT REGISTRETION!" << std::endl;
+    // }
 	// send(_fds[i].fd - 1, buf, readed + 1, 0);//либо отправляем сообщение
     ///ошибка - команда не существует
 

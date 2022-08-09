@@ -34,7 +34,9 @@ void    Message::setParams(const std::vector<std::string> &param) {
 }
 
 void	Message::sendReply(Client& client, int flag) {
-    std::string replyMsg;
+    std::stringstream	ss;
+    ss << flag;
+    std::string replyMsg = ":IRC "+ ss.str() + " " + client.getNickname() + " ";
 
     switch (flag)
     {
@@ -42,8 +44,17 @@ void	Message::sendReply(Client& client, int flag) {
         replyMsg += ":Welcom IRC " + client.getNickname() + "!" + client.getUsername() + "@"
                 + client.getAddress() + "\r\n";
         break;
+    case RPL_MOTDSTART:
+        replyMsg += ":- IRC Message of the day - \n";
+        break;
+    case RPL_MOTD:
+        replyMsg += ":- xxx\n";
+        break;
+    case RPL_ENDOFMOTD:
+        replyMsg += ":End of /MOTD command\n";
+        break;
     default:
-        replyMsg += "Empty reply\r\n";
+        replyMsg += "Empty reply\n";
         break;
     }
     send(client.getFd(), replyMsg.c_str(), replyMsg.size(), MSG_DONTWAIT);
@@ -113,16 +124,16 @@ bool    Message::checkDuplicate(Server &server) {
 }
 
 void	Message::cmdUser(Client& client, Message& msg) {
-	if (client.getNickname().empty())
-		sendError(client, msg, ERR_NOTREGISTERED);
-	else if (!msg._params.size())
+	// if (client.getNickname().empty())
+	// 	sendError(client, msg, ERR_NOTREGISTERED);
+	if (!msg._params.size())
 		sendError(client, msg, ERR_NEEDMOREPARAMS);
 	else if (!client.getUsername().empty())
 		sendError(client, msg, ERR_ALREADYREGISTRED);
 	else
 	{
 		client.setUsername(msg._params[0]);
-		sendReply(client, WELCOME);
+		// sendReply(client, WELCOME);
 	}
 }
 

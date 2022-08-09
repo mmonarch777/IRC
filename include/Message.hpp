@@ -5,6 +5,7 @@
 # include "Client.hpp"
 # include "Server.hpp"
 # include "Channel.hpp"
+# include <sstream>
 
 # define WELCOME                1
 
@@ -14,6 +15,10 @@
 # define ERR_NEEDMOREPARAMS		461
 # define ERR_ALREADYREGISTRED	462
 # define ERR_PASSWDMISMATCH     464
+
+#define RPL_ENDOFMOTD			376
+#define RPL_MOTDSTART			375
+#define RPL_MOTD				372
 
 class Server;
 class Client;
