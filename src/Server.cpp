@@ -105,7 +105,7 @@ void	Server::setNewConnection(size_t &i) {
 
 void	Server::continueConnection(size_t &i) {
 	char buf[BUFFER_SIZE];
-	Client&	client = _clients[_fds[i].fd];
+	Client&	client = _clients[i - 1];
 	
 	g_status = true;
 	memset(buf, 0, BUFFER_SIZE);
@@ -142,10 +142,10 @@ std::vector<Client> Server::getVectorCl() {
     return _clients;
 }
 
-//std::vector<Channel> Server::getVectorCh() {
-//    return _channel;
-//}
-//
-//void Server::addChannel(Channel *channel) {
-//    _channel.push_back(*channel);
-//}
+std::vector<Channel> Server::getVectorCh() {
+    return _channel;
+}
+
+void Server::addChannel(Channel *channel) {
+    _channel.push_back(*channel);
+}

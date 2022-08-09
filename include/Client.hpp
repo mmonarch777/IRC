@@ -47,5 +47,5 @@ class Client
         bool    isCheckRegistration();
 
 		void    execMessage(Server &server);
-		void	parceBuffer(Message msg);
+		void	parceBuffer(Message &msg);
 };

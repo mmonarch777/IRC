@@ -1,9 +1,10 @@
 #pragma once
 
-# include "Client.hpp"
 # include <sys/socket.h>
 # include <map>
+# include "Client.hpp"
 # include "Server.hpp"
+# include "Channel.hpp"
 
 # define WELCOME                1
 
@@ -15,12 +16,13 @@
 # define ERR_PASSWDMISMATCH     464
 
 class Server;
+class Client;
+class Channel;
 
 class Message {
     private:
         std::string                 _command;
         std::vector<std::string>    _params;
-        std::vector<std::string>    _allComands;
 
     public:
         Message();
@@ -35,7 +37,7 @@ class Message {
         void    setCommand(const std::vector<std::string> &param);
         void    setParams(const std::vector<std::string> &param);
         void    setAllComands();
-        bool    isCheckCom();
+        bool    isCheckCom(Server &server);
 
 		void	sendReply(Client& client, Message& msg, int flag);
 		void	sendError(Client& client, Message& msg, int error);

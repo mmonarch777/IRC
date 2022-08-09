@@ -3,7 +3,7 @@
 Client::Client() : _status(false) {}
 
 Client::Client(int fd, const std::string& address, const std::string& password):
-		_fd(fd), _address(address), _password(password) {}
+		_fd(fd), _address(address), _password(password), _status(false){}
 
 Client::~Client() {}
 
@@ -54,28 +54,25 @@ void    Client::execMessage(Server &server) {
 	Message msg;
 
 	parceBuffer(msg);
-	if (msg.isCheckCom()) {
-		if (msg.getCommand() == "PASS")
-			msg.cmdPass(*this, msg);
-		else if (msg.getCommand() == "NICK")
-			msg.cmdUser(*this, msg);
-		else if (msg.getCommand() == "USER")
-			msg.cmdNick(*this, msg, server);
-        else if (isCheckRegistration()) {
-//            if (msg.getCommand() == "JOIN") {
-//                msg.joinToChannel(*this, server);
-//            }
-        } else {
-            std::cout << "NOT REGISTRETION!" << std::endl;
+    if (msg.getCommand() == "PASS")
+        msg.cmdPass(*this, msg);
+    else if (msg.getCommand() == "NICK")
+        msg.cmdUser(*this, msg);
+    else if (msg.getCommand() == "USER")
+        msg.cmdNick(*this, msg, server);
+    else if (isCheckRegistration()) {
+        if (msg.getCommand() == "JOIN") {
+            msg.joinToChannel(*this, server);
         }
-
-	}
+    } else {
+        std::cout << "NOT REGISTRETION!" << std::endl;
+    }
 	// send(_fds[i].fd - 1, buf, readed + 1, 0);//либо отправляем сообщение
     ///ошибка - команда не существует
 
 }
 
-void	Client::parceBuffer(Message msg)
+void	Client::parceBuffer(Message &msg)
 {
     std::string com = _buffer;
     std::vector<std::string> param;

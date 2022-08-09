@@ -28,7 +28,7 @@ class Server {
 		int						_connections;
 		sockaddr_in				_hints;
 		std::vector<Client>	    _clients;
-//        std::vector<Channel>    _channel;
+        std::vector<Channel>    _channel;
 
 	public:
 		Server();

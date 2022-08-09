@@ -5,7 +5,6 @@ Message::Message() {
 
 Message::Message(std::string command, std::vector<std::string> params):
         _command(command), _params(params) {
-    setAllComands();
 }
 
 Message::Message(const Message& src) { *this = src; }
@@ -32,21 +31,6 @@ void    Message::setCommand(const std::vector<std::string> &param) {
 }
 void    Message::setParams(const std::vector<std::string> &param) {
     _params = param;
-}
-
-void    Message::setAllComands() {
-    std::string listCom[] = {"PASS", "USER", "NICK"};
-    int len = sizeof(listCom) / sizeof (listCom[0]);
-    std::vector<std::string> list(listCom, listCom + len);
-    _allComands = list;
-}
-
-bool    Message::isCheckCom() {
-    for (std::vector<std::string>::iterator it; it != _allComands.end(); it++) {
-        if (*it ==_command)
-            return true;
-    }
-    return false;
 }
 
 //void	Message::sendReply(Client& client, Message& msg, int flag) {
@@ -157,38 +141,34 @@ int    Message::checkNick(const std::string &nick){
     return 0;
 }
 
-//void    Message::joinToChannel(Client &client, Server &server) {
-//    if (this->_params[0][0] != '#') {
-//        std::cout << "Error params" << std::endl;
-//    }
-//
-//    if (!checkChannel(server, this->_params.front())) {
-//        creatNewChannel(server, client)
-//    } else {
-//
-//    }
-//
-//}
+void    Message::joinToChannel(Client &client, Server &server) {
+    if (this->_params[0][0] != '#') {
+        std::cout << "Error params" << std::endl;
+    }
 
-//bool    Message::checkChannel(Server &server, std::string channelName) {
-//    std::vector<Channel> tmp = server.getVectorCh();
-//    std::vector<Channel>::iterator it = tmp.begin();
-//    std::vector<Channel>::iterator ite = tmp.end();
-//
-//    for(;it != ite; it++) {
-//        if ((*it).getName() == channelName) {
-//            return true;
-//        }
-//    }
-//    return false;
-//}
+    if (!checkChannel(server, this->_params.front())) {
+        creatNewChannel(server, client);
+    } else {
+        std::cout << "Hellow world!" << std::endl;
+    }
+}
 
-//void Message::creatNewChannel(Server &server, Client &client) {
-//    Channel *channel = new Channel(this->_params.front());
-//
-//    channel.
-//    server.addChannel(channel);
-//    delete channel;
-//
-//}
+bool    Message::checkChannel(Server &server, std::string channelName) {
+    std::vector<Channel> tmp = server.getVectorCh();
+    std::vector<Channel>::iterator it = tmp.begin();
+    std::vector<Channel>::iterator ite = tmp.end();
+
+    for(;it != ite; it++) {
+        if ((*it).getName() == channelName) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Message::creatNewChannel(Server &server, Client &client) {
+    Channel *channel = new Channel(this->_params.front(), client.getFd(), client.getNickname());
+    server.addChannel(channel);
+    delete channel;
+}
 
