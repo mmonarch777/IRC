@@ -66,7 +66,7 @@ void    Client::execMessage(Server &server) {
 //                msg.joinToChannel(*this, server);
 //            }
         } else {
-            // std::cout << "NOT REGISTRETION!" << std::endl;
+            std::cout << "NOT REGISTRETION!" << std::endl;
         }
 
 	}
