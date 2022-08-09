@@ -39,7 +39,7 @@ class Message {
         void    setAllComands();
         bool    isCheckCom(Server &server);
 
-		void	sendReply(Client& client, Message& msg, int flag);
+		void	sendReply(Client& client, int flag);
 		void	sendError(Client& client, Message& msg, int error);
         void	cmdPass(Client& client, Message& msg);
 		void	cmdNick(Client& client, Message& msg, Server &server);

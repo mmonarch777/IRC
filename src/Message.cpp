@@ -33,21 +33,21 @@ void    Message::setParams(const std::vector<std::string> &param) {
     _params = param;
 }
 
-//void	Message::sendReply(Client& client, Message& msg, int flag) {
-//    std::string replyMsg;
-//
-//    switch (flag)
-//    {
-//    case WELCOME:
-//        replyMsg += ":Welcom IRC " + client.getNickname() + "!" + client.getUsername() + "@"
-//                + client.getAddress() + "\r\n";
-//        break;
-//    default:
-//        replyMsg += "Empty reply\r\n";
-//        break;
-//    }
-//    send(client.getFd(), replyMsg.c_str(), replyMsg.size(), MSG_DONTWAIT);
-//}
+void	Message::sendReply(Client& client, int flag) {
+    std::string replyMsg;
+
+    switch (flag)
+    {
+    case WELCOME:
+        replyMsg += ":Welcom IRC " + client.getNickname() + "!" + client.getUsername() + "@"
+                + client.getAddress() + "\r\n";
+        break;
+    default:
+        replyMsg += "Empty reply\r\n";
+        break;
+    }
+    send(client.getFd(), replyMsg.c_str(), replyMsg.size(), MSG_DONTWAIT);
+}
 
 void	Message::sendError(Client& client, Message& msg, int error) {
     std::string errMsg;
@@ -122,7 +122,7 @@ void	Message::cmdUser(Client& client, Message& msg) {
 	else
 	{
 		client.setUsername(msg._params[0]);
-//		sendReply(client, msg, WELCOME);
+		sendReply(client, WELCOME);
 	}
 }
 

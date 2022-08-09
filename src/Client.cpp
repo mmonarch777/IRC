@@ -3,7 +3,7 @@
 Client::Client() : _status(false) {}
 
 Client::Client(int fd, const std::string& address, const std::string& password):
-		_fd(fd), _address(address), _password(password), _status(false){}
+		_fd(fd), _status(false), _address(address) , _password(password) {}
 
 Client::~Client() {}
 
@@ -56,9 +56,9 @@ void    Client::execMessage(Server &server) {
 	parceBuffer(msg);
     if (msg.getCommand() == "PASS")
         msg.cmdPass(*this, msg);
-    else if (msg.getCommand() == "NICK")
-        msg.cmdUser(*this, msg);
     else if (msg.getCommand() == "USER")
+        msg.cmdUser(*this, msg);
+    else if (msg.getCommand() == "NICK")
         msg.cmdNick(*this, msg, server);
     else if (isCheckRegistration()) {
         if (msg.getCommand() == "JOIN") {
