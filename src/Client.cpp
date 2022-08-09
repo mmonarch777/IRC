@@ -63,6 +63,8 @@ void    Client::execMessage(Server &server) {
     else if (isCheckRegistration()) {
         if (msg.getCommand() == "JOIN") {
             msg.joinToChannel(*this, server);
+        } else if (msg.getCommand() == "PRIVMSG") {
+            msg.privMsg(*this, server);
         }
     } else {
         std::cout << "NOT REGISTRETION!" << std::endl;

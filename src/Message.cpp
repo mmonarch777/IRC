@@ -72,6 +72,9 @@ void	Message::sendError(Client& client, Message& msg, int error) {
         case ERR_PASSWDMISMATCH:
             errMsg += ":Password incorrect\r\n";
             break;
+        case ERR_NORECIPIENT:
+            errMsg += ":No recipient given " + this->_params[0] + "\n";
+            break;
     }
     send(client.getFd(), errMsg.c_str(), errMsg.size(), MSG_DONTWAIT);
 }
@@ -139,6 +142,30 @@ int    Message::checkNick(const std::string &nick){
         return 1;
     }
     return 0;
+}
+
+void Message::privMsg(Client &client, Server &server) {
+    std::string msg;
+
+    if (this->_params.size() < 2){
+        sendError(client, *this, ERR_NEEDMOREPARAMS);
+        return ;
+    }
+    if (this->_params[0][0] == '#') {
+        return;
+    } else {
+        std::vector<Client> tmp = server.getVectorCl();
+        std::vector<Client>::iterator it = tmp.begin();
+        std::vector<Client>::iterator ite = tmp.end();
+        for (; it != ite; it++) {
+            if ((*it).getNickname() == this->_params.front()) {
+                msg = ":" + client.getNickname() + "!" + client.getUsername() + "@127.0.0.1 " + this->_params[1] + "\r\n";
+                send((*it).getFd(), msg.c_str(), msg.length() + 1, 0);
+                return;
+            }
+        }
+    }
+    sendError(client, *this, ERR_NORECIPIENT);
 }
 
 void    Message::joinToChannel(Client &client, Server &server) {
