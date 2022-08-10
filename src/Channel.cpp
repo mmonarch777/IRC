@@ -40,3 +40,25 @@ std::vector<int>& Channel::getClientsFd() {
     return _clientsFd;
 }
 
+bool Channel::isCheckCurFd(int fd) {
+    std::vector<int>::iterator it = _clientsFd.begin();
+    std::vector<int>::iterator ite = _clientsFd.end();
+
+    for (; it != ite; it++) {
+        if (*it == fd) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Channel::delClientsFd(int fd) {
+    std::vector<int>::iterator it = _clientsFd.begin();
+    std::vector<int>::iterator ite = _clientsFd.end();
+
+    for (;it != ite; it++) {
+        if(*it == fd) {
+            _clientsFd.erase(it);
+        }
+    }
+}

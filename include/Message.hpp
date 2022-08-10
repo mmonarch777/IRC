@@ -18,6 +18,9 @@
 # define ERR_PASSWDMISMATCH     464
 
 # define ERR_BADCHANNELKEY      475
+# define ERR_NOSUCHCHANNEL      403
+# define ERR_NOTONCHANNEL       442
+# define ERR_NOTEXTTOSEND       412
 
 #define RPL_ENDOFMOTD			376
 #define RPL_MOTDSTART			375
@@ -59,7 +62,9 @@ class Message {
         void    joinToChannel(Client &client, Server &server);
         bool    checkChannel(Server &server, std::string channelName);
         void    creatNewChannel(Server &server, Client &client);
-        void    sendAllToChannel(Client &client, std::vector<int> &fds, std::string nameChannel);
+        void    sendAllToChannel(Client &client, std::vector<int> &fds, std::string str);
 
         void    privMsg(Client &client, Server &server);
+
+        void    outFromChannel(Client &client, Server &server);
 };

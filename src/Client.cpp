@@ -69,6 +69,8 @@ void    Client::execMessage(Server &server) {
         msg.joinToChannel(*this, server);
     else if (msg.getCommand() == "PRIVMSG")
         msg.privMsg(*this, server);
+    else if (msg.getCommand() == "PART")
+        msg.outFromChannel(*this, server);
 //    if (isCheckRegistration()) {
 //		msg.sendReply(*this, RPL_MOTDSTART);
 //		msg.sendReply(*this, RPL_MOTD);
