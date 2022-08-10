@@ -71,6 +71,8 @@ void    Client::execMessage(Server &server) {
         msg.privMsg(*this, server);
     else if (msg.getCommand() == "PART")
         msg.outFromChannel(*this, server);
+    else if (msg.getCommand() == "NOTICE")
+        msg.msgToChannel(*this, server);
 //    if (isCheckRegistration()) {
 //		msg.sendReply(*this, RPL_MOTDSTART);
 //		msg.sendReply(*this, RPL_MOTD);

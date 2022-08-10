@@ -65,6 +65,8 @@ class Message {
         void    sendAllToChannel(Client &client, std::vector<int> &fds, std::string str);
 
         void    privMsg(Client &client, Server &server);
+        void    msgToChannel(Client &client, Server &server);
 
         void    outFromChannel(Client &client, Server &server);
+
 };

@@ -193,18 +193,46 @@ void Message::privMsg(Client &client, Server &server) {
         sendError(client, *this, ERR_NEEDMOREPARAMS);
         return ;
     }
-    if (this->_params[0][0] == '#') {
+    std::vector<Client> tmp = server.getVectorCl();
+    std::vector<Client>::iterator it = tmp.begin();
+    std::vector<Client>::iterator ite = tmp.end();
+    for (; it != ite; it++) {
+        if ((*it).getNickname() == this->_params.front()) {
+            msg = ":" + client.getNickname() + "!" + client.getUsername() + "@127.0.0.1 " + getStrParams(1) + "\r\n";
+            send((*it).getFd(), msg.c_str(), msg.length() + 1, 0);
+            return;
+        }
+    }
+    sendError(client, *this, ERR_NORECIPIENT);
+}
+
+void Message::msgToChannel(Client &client, Server &server) {
+    if (!client.isCheckRegistration()) {
+        sendError(client, *this, ERR_NOTREGISTERED);
         return;
-    } else {
-        std::vector<Client> tmp = server.getVectorCl();
-        std::vector<Client>::iterator it = tmp.begin();
-        std::vector<Client>::iterator ite = tmp.end();
-        for (; it != ite; it++) {
-            if ((*it).getNickname() == this->_params.front()) {
-                msg = ":" + client.getNickname() + "!" + client.getUsername() + "@127.0.0.1 " + getStrParams(1) + "\r\n";
-                send((*it).getFd(), msg.c_str(), msg.length() + 1, 0);
-                return;
+    } else if (this->_params.size() == 1){
+        sendError(client, *this, ERR_NOTEXTTOSEND);
+        return ;
+    } else if (this->_params.size() < 2){
+        sendError(client, *this, ERR_NEEDMOREPARAMS);
+        return ;
+    } else if (this->_params[0][0] != '#') {
+        sendError(client, *this, ERR_BADCHANNELKEY);
+        return;
+    }
+    std::vector<Channel> &tmp = server.getVectorCh();
+    std::vector<Channel>::iterator it = tmp.begin();
+    std::vector<Channel>::iterator ite = tmp.end();
+    for (; it != ite; it++) {
+        if ((*it).getName() == this->_params.front()) {
+            if ((*it).getAdminNick() == client.getNickname()) {
+                std::string string = ":@" + client.getNickname() + "! " + getStrParams(1) + "\n\r";
+                sendAllToChannel(client, (*it).getClientsFd(), string);
+            } else {
+                std::string string = ":" + client.getNickname() + "! " + getStrParams(1) + "\n\r";
+                sendAllToChannel(client, (*it).getClientsFd(), string);
             }
+            return;
         }
     }
     sendError(client, *this, ERR_NORECIPIENT);
@@ -261,7 +289,7 @@ void    Message::joinToChannel(Client &client, Server &server) {
 }
 
 bool    Message::checkChannel(Server &server, std::string channelName) {
-    std::vector<Channel> tmp = server.getVectorCh();
+    std::vector<Channel> &tmp = server.getVectorCh();
     std::vector<Channel>::iterator it = tmp.begin();
     std::vector<Channel>::iterator ite = tmp.end();
 
