@@ -28,3 +28,15 @@ std::string& Channel::getName() { return _name; }
 
 void    Channel::setName(const std::string& name) { _name = name; }
 
+void Channel::setClientsFd(int fd) {
+    _clientsFd.push_back(fd);
+}
+
+std::string Channel::getAdminNick() {
+    return _adminNick;
+}
+
+std::vector<int>& Channel::getClientsFd() {
+    return _clientsFd;
+}
+

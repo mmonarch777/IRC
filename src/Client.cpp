@@ -54,28 +54,26 @@ void    Client::execMessage(Server &server) {
 	Message msg;
 
 	parceBuffer(msg);
+    if (!msg.isCheckCom()) {
+        std::string mes = ": Command don't exist!!! Try again..\r\n";
+        send(this->_fd, mes.c_str(), mes.length() + 1, 0);
+        return;
+    }
     if (msg.getCommand() == "PASS")
         msg.cmdPass(*this, msg);
     else if (msg.getCommand() == "USER")
         msg.cmdUser(*this, msg);
     else if (msg.getCommand() == "NICK")
         msg.cmdNick(*this, msg, server);
-    else if (isCheckRegistration()) {
-        if (msg.getCommand() == "JOIN")
-            msg.joinToChannel(*this, server);
-        else if (msg.getCommand() == "PRIVMSG")
-            msg.privMsg(*this, server);
-    } else {
-        std::cout << "NOT REGISTRETION!" << std::endl;
-    }
-    if (isCheckRegistration()) {
-		msg.sendReply(*this, RPL_MOTDSTART);
-		msg.sendReply(*this, RPL_MOTD);
-		msg.sendReply(*this, RPL_ENDOFMOTD);
-	}
-	// send(_fds[i].fd - 1, buf, readed + 1, 0);//либо отправляем сообщение
-    ///ошибка - команда не существует
-
+    else if (msg.getCommand() == "JOIN")
+        msg.joinToChannel(*this, server);
+    else if (msg.getCommand() == "PRIVMSG")
+        msg.privMsg(*this, server);
+//    if (isCheckRegistration()) {
+//		msg.sendReply(*this, RPL_MOTDSTART);
+//		msg.sendReply(*this, RPL_MOTD);
+//		msg.sendReply(*this, RPL_ENDOFMOTD);
+//	}
 }
 
 void	Client::parceBuffer(Message &msg)

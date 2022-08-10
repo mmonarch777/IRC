@@ -17,6 +17,8 @@
 # define ERR_ALREADYREGISTRED	462
 # define ERR_PASSWDMISMATCH     464
 
+# define ERR_BADCHANNELKEY      475
+
 #define RPL_ENDOFMOTD			376
 #define RPL_MOTDSTART			375
 #define RPL_MOTD				372
@@ -42,8 +44,7 @@ class Message {
 
         void    setCommand(const std::vector<std::string> &param);
         void    setParams(const std::vector<std::string> &param);
-        void    setAllComands();
-        bool    isCheckCom(Server &server);
+        bool    isCheckCom();
 
 		void	sendReply(Client& client, int flag);
 		void	sendError(Client& client, Message& msg, int error);
@@ -53,10 +54,12 @@ class Message {
 
         int     checkNick(const std::string &nick);
         bool    checkDuplicate(Server &server);
+        std::string getStrParams(int nb);
 
         void    joinToChannel(Client &client, Server &server);
         bool    checkChannel(Server &server, std::string channelName);
         void    creatNewChannel(Server &server, Client &client);
+        void    sendAllToChannel(Client &client, std::vector<int> &fds, std::string nameChannel);
 
         void    privMsg(Client &client, Server &server);
 };

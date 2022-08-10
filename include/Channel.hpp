@@ -20,6 +20,10 @@ class Channel {
 
         std::string&            getName();
         void                    setName(const std::string& name);
+        void                    setClientsFd(int fd);
+
+        std::vector<int>&       getClientsFd();
+        std::string             getAdminNick();
 
 
 };

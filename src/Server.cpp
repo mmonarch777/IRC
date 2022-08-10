@@ -29,6 +29,10 @@ Server& Server::operator=(const Server& src) {
 	return *this;
 }
 
+int Server::getServerFd() {
+    return _fds[0].fd;
+}
+
 void	Server::start() {
 	g_status = true;
 	signal(SIGINT, &sighandler);
@@ -91,11 +95,13 @@ void	Server::mainLoop(void) {
 
 void	Server::setNewConnection(size_t &i) {
 	char str[INET_ADDRSTRLEN];
+    g_status = true;
 
-	g_status = true;
 	_fds[_connections].fd = accept(_fds[i].fd, NULL, NULL); // принимаем соединение на сокете
-	inet_ntop(AF_INET, &(_hints.sin_addr), str, INET_ADDRSTRLEN),
-	_clients.push_back(Client(_fds[_connections].fd, str, _password));
+	inet_ntop(AF_INET, &(_hints.sin_addr), str, INET_ADDRSTRLEN);
+    Client *client = new Client(_fds[_connections].fd, str, _password);
+    _clients.push_back(*client);
+    delete client;
 	std::cout << "New client #" << _fds[_connections].fd << " from " << str << ":" << _port << '\n';
 	_fds[_connections].events = POLLIN;
 	_fds[_connections].revents = 0;
@@ -106,8 +112,8 @@ void	Server::setNewConnection(size_t &i) {
 void	Server::continueConnection(size_t &i) {
 	char buf[BUFFER_SIZE];
 	Client&	client = _clients[i - 1];
-	
-	g_status = true;
+    g_status = true;
+
 	memset(buf, 0, BUFFER_SIZE);
 	int readed = recv(_fds[i].fd, buf, BUFFER_SIZE, MSG_DONTWAIT);
 	_fds[i].revents = 0;
@@ -121,11 +127,6 @@ void	Server::continueConnection(size_t &i) {
 	buf[readed] = 0;
     client.setBuffer(buf);
 	client.execMessage(*this);
-	// if (client.isCheckRegistration()) {
-	// 	sendReply(client, RPL_MOTDSTART);
-	// 	sendReply(client, RPL_MOTD);
-	// 	sendReply(client, RPL_ENDOFMOTD);
-	// }
 	_fds[i].revents = 0;
 }
 
@@ -147,7 +148,7 @@ std::vector<Client> Server::getVectorCl() {
     return _clients;
 }
 
-std::vector<Channel> Server::getVectorCh() {
+std::vector<Channel> &Server::getVectorCh() {
     return _channel;
 }
 

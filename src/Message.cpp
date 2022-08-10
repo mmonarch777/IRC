@@ -33,6 +33,15 @@ void    Message::setParams(const std::vector<std::string> &param) {
     _params = param;
 }
 
+bool    Message::isCheckCom() {
+    std::string	commands[] = {"PASS", "USER", "NICK", "QUIT", "PRIVMSG", "NOTICE", "JOIN", "PART", "KICK", "BOT"};
+    if (std::find(std::begin(commands), std::end(commands), _command) != std::end(commands)){
+        return true;
+    }
+
+    return false;
+}
+
 void	Message::sendReply(Client& client, int flag) {
     std::stringstream	ss;
     ss << flag;
@@ -84,7 +93,10 @@ void	Message::sendError(Client& client, Message& msg, int error) {
             errMsg += ":Password incorrect\r\n";
             break;
         case ERR_NORECIPIENT:
-            errMsg += ":No recipient given " + this->_params[0] + "\n";
+            errMsg += ":No recipient given " + this->_params[0] + "\r\n";
+            break;
+        case ERR_BADCHANNELKEY:
+            errMsg += ":Bad channel key " + this->_params[0] + "\r\n";
             break;
     }
     send(client.getFd(), errMsg.c_str(), errMsg.size(), MSG_DONTWAIT);
@@ -127,16 +139,20 @@ bool    Message::checkDuplicate(Server &server) {
 }
 
 void	Message::cmdUser(Client& client, Message& msg) {
-	// if (client.getNickname().empty())
-	// 	sendError(client, msg, ERR_NOTREGISTERED);
 	if (!msg._params.size())
 		sendError(client, msg, ERR_NEEDMOREPARAMS);
 	else if (!client.getUsername().empty())
 		sendError(client, msg, ERR_ALREADYREGISTRED);
 	else
 	{
-		client.setUsername(msg._params[0]);
-		// sendReply(client, WELCOME);
+		if (client.getStatus() && !client.getNickname().empty()) {
+            client.setUsername(msg._params[0]);
+            sendReply(client, WELCOME);
+            std::string string = "NEW CLIENT: USER " + client.getUsername() + ", NICK " + client.getNickname();
+            std::cout << string << std::endl;
+        } else {
+            sendError(client, msg, ERR_NOTREGISTERED);
+        }
 	}
 }
 
@@ -158,6 +174,10 @@ int    Message::checkNick(const std::string &nick){
 void Message::privMsg(Client &client, Server &server) {
     std::string msg;
 
+    if (!client.isCheckRegistration()) {
+        sendError(client, *this, ERR_NOTREGISTERED);
+        return;
+    }
     if (this->_params.size() < 2){
         sendError(client, *this, ERR_NEEDMOREPARAMS);
         return ;
@@ -170,7 +190,7 @@ void Message::privMsg(Client &client, Server &server) {
         std::vector<Client>::iterator ite = tmp.end();
         for (; it != ite; it++) {
             if ((*it).getNickname() == this->_params.front()) {
-                msg = ":" + client.getNickname() + "!" + client.getUsername() + "@127.0.0.1 " + this->_params[1] + "\r\n";
+                msg = ":" + client.getNickname() + "!" + client.getUsername() + "@127.0.0.1 " + getStrParams(1) + "\r\n";
                 send((*it).getFd(), msg.c_str(), msg.length() + 1, 0);
                 return;
             }
@@ -179,15 +199,44 @@ void Message::privMsg(Client &client, Server &server) {
     sendError(client, *this, ERR_NORECIPIENT);
 }
 
+std::string Message::getStrParams(int nb) {
+    std::string str;
+    int size = (int)this->_params.size();
+    for (int i = nb; i < size; i++) {
+        str += this->_params[i];
+        if (i + 1 < size) {
+            str += " ";
+        }
+    }
+    return str;
+}
+
 void    Message::joinToChannel(Client &client, Server &server) {
+    if (!client.isCheckRegistration()) {
+        sendError(client, *this, ERR_NOTREGISTERED);
+        return;
+    }
     if (this->_params[0][0] != '#') {
-        std::cout << "Error params" << std::endl;
+        sendError(client, *this, ERR_BADCHANNELKEY);
+    } else if (this->_params.empty()) {
+        sendError(client, *this, ERR_NEEDMOREPARAMS);
     }
 
     if (!checkChannel(server, this->_params.front())) {
         creatNewChannel(server, client);
     } else {
-        std::cout << "Hellow world!" << std::endl;
+        std::vector<Channel> tmp = server.getVectorCh();
+        std::vector<Channel>::iterator it = tmp.begin();
+        std::vector<Channel>::iterator ite = tmp.end();
+        for (; it != ite; it++) {
+            if ((*it).getName() == this->_params.front()) {
+                (*it).setClientsFd(client.getFd());
+                std::string str = ": You JOIN to channel " + this->_params.front()+ ". Channel admin is " + (*it).getAdminNick() + " \r\n";
+                send(client.getFd(), str.c_str(), str.length() + 1, 0);
+                sendAllToChannel(client, (*it).getClientsFd(), (*it).getName());
+                return;
+            }
+        }
     }
 }
 
@@ -208,5 +257,20 @@ void Message::creatNewChannel(Server &server, Client &client) {
     Channel *channel = new Channel(this->_params.front(), client.getFd(), client.getNickname());
     server.addChannel(channel);
     delete channel;
+
+    std::string tmp = ": You JOIN to channel " + this->_params.front() + ". Channel admin is " + client.getNickname() + " \r\n";
+    send(client.getFd(), tmp.c_str(), tmp.length() + 1, 0);
+}
+
+void Message::sendAllToChannel(Client &client, std::vector<int> &fds, std::string nameChannel) {
+    std::string str = ": " + client.getNickname() + " JOIN to channel " + nameChannel + "\r\n";
+    std::vector<int>::iterator it = fds.begin();
+    std::vector<int>::iterator ite = fds.end();
+
+    for (; it != ite; it++) {
+        if (*it != client.getFd()) {
+            send(*it, str.c_str(), str.length() + 1, 0);
+        }
+    }
 }
 
