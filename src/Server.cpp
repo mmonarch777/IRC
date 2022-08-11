@@ -144,7 +144,7 @@ void	Server::error(const char* error) {
 	exit(EXIT_FAILURE);
 }
 
-std::vector<Client> Server::getVectorCl() {
+std::vector<Client> &Server::getVectorCl() {
     return _clients;
 }
 
@@ -154,4 +154,20 @@ std::vector<Channel> &Server::getVectorCh() {
 
 void Server::addChannel(Channel *channel) {
     _channel.push_back(*channel);
+}
+
+int Server::findClient(const std::string &nickName) {
+    std::vector<Client> tmp = getVectorCl();
+    std::vector<Client>::iterator it = tmp.begin();
+    std::vector<Client>::iterator ite = tmp.end();
+    for (; it != ite; it++) {
+        if ((*it).getNickname() == nickName) {
+            return (*it).getFd();
+        }
+    }
+    return 0;
+}
+
+void Server::incrementConnection(int nb) {
+    _connections += nb;
 }

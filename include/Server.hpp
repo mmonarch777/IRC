@@ -47,11 +47,16 @@ class Server {
 		void	setNewConnection(size_t &i);
 		void	continueConnection(size_t &i);
 		void	removeServer(void);
+        void    incrementConnection(int nb);
         int     getServerFd();
+        struct pollfd &getFds(int fd) {
+            return _fds[fd];
+        }
 
 		void	error(const char* error);
+        int     findClient(const std::string &name);
 
-        std::vector<Client> getVectorCl();
+        std::vector<Client> &getVectorCl();
         std::vector<Channel> &getVectorCh();
         void    addChannel(Channel *channel);
 };

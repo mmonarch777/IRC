@@ -107,6 +107,12 @@ void	Message::sendError(Client& client, Message& msg, int error) {
         case ERR_NOTEXTTOSEND:
             errMsg += ":No text to send " + this->_params[0] + "\r\n";
             break;
+        case ERR_CHANOPRIVSNEEDED:
+            errMsg += ":You're not operator. Channel " + this->_params[0] + "\r\n";
+            break;
+        case ERR_NOTFOUNDCLIENT:
+            errMsg += ":" + this->_params[1] + " don't find in the channel " + this->_params[0] + "\r\n";
+            break;
     }
     send(client.getFd(), errMsg.c_str(), errMsg.size(), MSG_DONTWAIT);
 }
@@ -193,7 +199,7 @@ void Message::privMsg(Client &client, Server &server) {
         sendError(client, *this, ERR_NEEDMOREPARAMS);
         return ;
     }
-    std::vector<Client> tmp = server.getVectorCl();
+    std::vector<Client> &tmp = server.getVectorCl();
     std::vector<Client>::iterator it = tmp.begin();
     std::vector<Client>::iterator ite = tmp.end();
     for (; it != ite; it++) {
@@ -226,10 +232,10 @@ void Message::msgToChannel(Client &client, Server &server) {
     for (; it != ite; it++) {
         if ((*it).getName() == this->_params.front()) {
             if ((*it).getAdminNick() == client.getNickname()) {
-                std::string string = ":@" + client.getNickname() + "! " + getStrParams(1) + "\n\r";
+                std::string string = ": @" + client.getNickname() + "! " + getStrParams(1) + "\n\r";
                 sendAllToChannel(client, (*it).getClientsFd(), string);
             } else {
-                std::string string = ":" + client.getNickname() + "! " + getStrParams(1) + "\n\r";
+                std::string string = ": " + client.getNickname() + "! " + getStrParams(1) + "\n\r";
                 sendAllToChannel(client, (*it).getClientsFd(), string);
             }
             return;
@@ -358,3 +364,68 @@ void Message::outFromChannel(Client &client, Server &server) {
     }
 }
 
+void Message::kickFromChannel(Client &client, Server &server) {
+    if (!client.isCheckRegistration()) {
+        sendError(client, *this, ERR_NOTREGISTERED);
+        return;
+    } else if (this->_params.size() < 2) {
+        sendError(client, *this, ERR_NEEDMOREPARAMS);
+        return;
+    } else if (this->_params[0][0] != '#') {
+        sendError(client, *this, ERR_BADCHANNELKEY);
+        return;
+    }
+    if (!checkChannel(server, this->_params.front())) {
+        sendError(client, *this, ERR_NOSUCHCHANNEL);
+    } else {
+        std::vector<Channel> &tmp = server.getVectorCh();
+        std::vector<Channel>::iterator it = tmp.begin();
+        std::vector<Channel>::iterator ite = tmp.end();
+        for (; it != ite; it++) {
+            if ((*it).getName() == this->_params.front()) {
+                if ((*it).getAdminNick() == client.getNickname()) {
+                    int fd = server.findClient(this->_params[1]);
+                    if (!(*it).isCheckCurFd(fd)) {
+                        sendError(client, *this, ERR_NOTONCHANNEL);
+                        return;
+                    }
+                    if (fd == client.getFd()) {
+                        std::string err = "You can't KICK yourself\r\n";
+                        send(fd, err.c_str(), err.length() + 1, 0);
+                        return;
+                    }
+                    if (fd) {
+                        (*it).delClientsFd(fd);
+                        std::string str = ": You have been removed from the channel " + this->_params.front() + ". Reason: " +
+                                getStrParams(2) + " \r\n";
+                        send(client.getFd(), str.c_str(), str.length() + 1, 0);
+                        str = ": " + this->_params[1] + " was removed from the channel " + this->_params.front() + ". Reason: " +
+                                getStrParams(2) + " \r\n";
+                        sendAllToChannel(client, (*it).getClientsFd(), str);
+                    } else {
+                        sendError(client, *this, ERR_NOTFOUNDCLIENT);
+                    }
+                } else {
+                    sendError(client, *this, ERR_CHANOPRIVSNEEDED);
+                }
+            }
+        }
+    }
+}
+
+void Message::quiteFromServer(Client &client, Server &server) {
+    std::cout << "Client #" << client.getFd() << " Disconnected!" << std::endl;
+    server.getFds(client.getFd()).fd = -1;
+
+    std::vector<Client> &tmp = server.getVectorCl();
+    std::vector<Client>::iterator it = tmp.begin();
+    std::vector<Client>::iterator ite = tmp.end();
+    for (;it != ite; it++) {
+        if ((*it).getFd() == client.getFd()) {
+            tmp.erase(it);
+            break;
+        }
+    }
+    server.incrementConnection(-1);
+    close(client.getFd());
+}

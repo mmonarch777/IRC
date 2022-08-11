@@ -22,6 +22,9 @@
 # define ERR_NOTONCHANNEL       442
 # define ERR_NOTEXTTOSEND       412
 
+# define ERR_CHANOPRIVSNEEDED   482
+# define ERR_NOTFOUNDCLIENT     488
+
 #define RPL_ENDOFMOTD			376
 #define RPL_MOTDSTART			375
 #define RPL_MOTD				372
@@ -68,5 +71,6 @@ class Message {
         void    msgToChannel(Client &client, Server &server);
 
         void    outFromChannel(Client &client, Server &server);
-
+        void    kickFromChannel(Client &client, Server &server);
+        void    quiteFromServer(Client &client, Server &server);
 };

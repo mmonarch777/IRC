@@ -73,6 +73,10 @@ void    Client::execMessage(Server &server) {
         msg.outFromChannel(*this, server);
     else if (msg.getCommand() == "NOTICE")
         msg.msgToChannel(*this, server);
+    else if (msg.getCommand() == "KICK")
+        msg.kickFromChannel(*this, server);
+    else if (msg.getCommand() == "QUIT")
+        msg.quiteFromServer(*this, server);
 //    if (isCheckRegistration()) {
 //		msg.sendReply(*this, RPL_MOTDSTART);
 //		msg.sendReply(*this, RPL_MOTD);
