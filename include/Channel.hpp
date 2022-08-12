@@ -18,6 +18,8 @@ class Channel {
         Channel& operator=(const Channel& src);
         ~Channel();
 
+        void                    setAdminFd(int fd);
+        void                    setAdminNick(std::string name);
         std::string&            getName();
         void                    setName(const std::string& name);
         void                    setClientsFd(int fd);
@@ -25,6 +27,7 @@ class Channel {
 
         std::vector<int>&       getClientsFd();
         std::string             getAdminNick();
+        int                     getAdminFd();
         bool                    isCheckCurFd(int fd);
 
 

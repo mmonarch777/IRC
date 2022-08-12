@@ -117,30 +117,30 @@ void	Message::sendError(Client& client, Message& msg, int error) {
     send(client.getFd(), errMsg.c_str(), errMsg.size(), MSG_DONTWAIT);
 }
 
-void	Message::cmdPass(Client& client, Message& msg) {
-    if (!msg._params.size())
-        sendError(client, msg, ERR_NEEDMOREPARAMS);
+void	Message::cmdPass(Client& client) {
+    if (this->_params.empty())
+        sendError(client, *this, ERR_NEEDMOREPARAMS);
     else if (client.getStatus() && !client.getNickname().empty())
-        sendError(client, msg, ERR_ALREADYREGISTRED);
-    else if (!client.getStatus() && msg._params[0] != client.getPassword())
-        sendError(client, msg, ERR_PASSWDMISMATCH);
+        sendError(client, *this, ERR_ALREADYREGISTRED);
+    else if (!client.getStatus() && this->_params[0] != client.getPassword())
+        sendError(client, *this, ERR_PASSWDMISMATCH);
     else
         client.setStatus(true);
 }
 
-void	Message::cmdNick(Client& client, Message& msg, Server &server) {
+void	Message::cmdNick(Client& client, Server &server) {
     std::string nick;
 
-    if (msg._params.size() == 0)
-        sendError(client, msg, ERR_NEEDMOREPARAMS);
-    else if (msg.checkNick(msg._params[0])) //проверить допустимый ли никнейм
-        sendError(client, msg, ERR_ERRONEUSNICKNAME);
-    else if (msg.checkDuplicate(server)) //проверить, есть ли ник в списке зарегестрированных
-        sendError(client, msg, ERR_NICKNAMEINUSE);
+    if (this->_params.empty())
+        sendError(client, *this, ERR_NEEDMOREPARAMS);
+    else if (this->checkNick(this->_params[0])) //проверить допустимый ли никнейм
+        sendError(client, *this, ERR_ERRONEUSNICKNAME);
+    else if (this->checkDuplicate(server)) //проверить, есть ли ник в списке зарегестрированных
+        sendError(client, *this, ERR_NICKNAMEINUSE);
     else {
         nick = ":" + client.getNickname() + "!" + client.getUsername() + "@"
-                + client.getAddress() + " " + msg._command + " :" + msg._params.front() + "\r\n";
-        client.setNickname(msg._params.front());
+                + client.getAddress() + " " + this->_command + " :" + this->_params.front() + "\r\n";
+        client.setNickname(this->_params.front());
     }
 }
 
@@ -153,20 +153,20 @@ bool    Message::checkDuplicate(Server &server) {
     return false;
 }
 
-void	Message::cmdUser(Client& client, Message& msg) {
-	if (!msg._params.size())
-		sendError(client, msg, ERR_NEEDMOREPARAMS);
+void	Message::cmdUser(Client& client) {
+	if (this->_params.empty())
+		sendError(client, *this, ERR_NEEDMOREPARAMS);
 	else if (!client.getUsername().empty())
-		sendError(client, msg, ERR_ALREADYREGISTRED);
+		sendError(client, *this, ERR_ALREADYREGISTRED);
 	else
 	{
 		if (client.getStatus() && !client.getNickname().empty()) {
-            client.setUsername(msg._params[0]);
+            client.setUsername(this->_params[0]);
             sendReply(client, WELCOME);
             std::string string = "NEW CLIENT: USER " + client.getUsername() + ", NICK " + client.getNickname();
             std::cout << string << std::endl;
         } else {
-            sendError(client, msg, ERR_NOTREGISTERED);
+            sendError(client, *this, ERR_NOTREGISTERED);
         }
 	}
 }
@@ -279,6 +279,11 @@ void    Message::joinToChannel(Client &client, Server &server) {
         for (; it != ite; it++) {
             if ((*it).getName() == this->_params.front()) {
                 if (!(*it).isCheckCurFd(client.getFd())) {
+                    if (!(*it).isCheckCurFd((*it).getAdminFd())) {
+                        Client &refClient = server.getClient(*(*it).getClientsFd().begin());
+                        (*it).setAdminFd(refClient.getFd());
+                        (*it).setAdminNick(refClient.getNickname());
+                    }
                     (*it).setClientsFd(client.getFd());
                     std::string str = ": You JOIN to channel " + this->_params.front() + ". Channel admin is " + (*it).getAdminNick() + " \r\n";
                     send(client.getFd(), str.c_str(), str.length() + 1, 0);
@@ -351,6 +356,16 @@ void Message::outFromChannel(Client &client, Server &server) {
             if ((*it).getName() == this->_params.front()) {
                 if ((*it).isCheckCurFd(client.getFd())) {
                     (*it).delClientsFd(client.getFd());
+                    if ((*it).getAdminNick() == client.getNickname()) {
+                        if ((*it).getClientsFd().empty()) {
+                            tmp.erase(it);
+                            std::cout << ": Channel " << (*it).getName() << " was remove" << "\r\n";
+                        } else {
+                            Client &refClient = server.getClient(*(*it).getClientsFd().begin());
+                            (*it).setAdminFd(refClient.getFd());
+                            (*it).setAdminNick(refClient.getNickname());
+                        }
+                    }
                     std::string str = ": You left the channel " + this->_params.front() + " \r\n";
                     send(client.getFd(), str.c_str(), str.length() + 1, 0);
                     str = ": " + client.getNickname() + " LEFT the channel " + this->_params.front() + "\r\n";

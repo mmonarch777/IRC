@@ -32,12 +32,23 @@ void Channel::setClientsFd(int fd) {
     _clientsFd.push_back(fd);
 }
 
+void Channel::setAdminFd(int fd) {
+    _adminFd = fd;
+}
+void Channel::setAdminNick(std::string name) {
+    _adminNick = name;
+}
+
 std::string Channel::getAdminNick() {
     return _adminNick;
 }
 
 std::vector<int>& Channel::getClientsFd() {
     return _clientsFd;
+}
+
+int Channel::getAdminFd() {
+    return _adminFd;
 }
 
 bool Channel::isCheckCurFd(int fd) {

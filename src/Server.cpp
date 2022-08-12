@@ -171,3 +171,30 @@ int Server::findClient(const std::string &nickName) {
 void Server::incrementConnection(int nb) {
     _connections += nb;
 }
+
+struct pollfd &Server::getFds(int fd) {
+    return _fds[fd];
+}
+
+Client &Server::getClient(int fd) {
+    std::vector<Client>::iterator it = _clients.begin();
+    std::vector<Client>::iterator ite = _clients.end();
+
+    for (;it != ite; it++) {
+        if ((*it).getFd() == fd) {
+            return *it;
+        }
+    }
+    return *ite;
+}
+
+void Server::checkChannel() {
+    std::vector<Channel> &channel = this->getVectorCh();
+    std::vector<Channel>::iterator it = channel.begin();
+    std::vector<Channel>::iterator ite = channel.end();
+    for (; it != ite; it++) {
+        if ((*it).getClientsFd().empty()){
+            channel.erase(it);
+        }
+    }
+}

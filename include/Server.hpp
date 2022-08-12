@@ -49,9 +49,7 @@ class Server {
 		void	removeServer(void);
         void    incrementConnection(int nb);
         int     getServerFd();
-        struct pollfd &getFds(int fd) {
-            return _fds[fd];
-        }
+        struct pollfd &getFds(int fd);
 
 		void	error(const char* error);
         int     findClient(const std::string &name);
@@ -59,4 +57,8 @@ class Server {
         std::vector<Client> &getVectorCl();
         std::vector<Channel> &getVectorCh();
         void    addChannel(Channel *channel);
+        Client &getClient(int fd);
+
+
+        void    checkChannel();
 };

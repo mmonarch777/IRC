@@ -54,9 +54,9 @@ class Message {
 
 		void	sendReply(Client& client, int flag);
 		void	sendError(Client& client, Message& msg, int error);
-        void	cmdPass(Client& client, Message& msg);
-		void	cmdNick(Client& client, Message& msg, Server &server);
-		void	cmdUser(Client& client, Message& msg);
+        void	cmdPass(Client& client);
+		void	cmdNick(Client& client, Server &server);
+		void	cmdUser(Client& client);
 
         int     checkNick(const std::string &nick);
         bool    checkDuplicate(Server &server);
@@ -69,7 +69,6 @@ class Message {
 
         void    privMsg(Client &client, Server &server);
         void    msgToChannel(Client &client, Server &server);
-
         void    outFromChannel(Client &client, Server &server);
         void    kickFromChannel(Client &client, Server &server);
         void    quiteFromServer(Client &client, Server &server);

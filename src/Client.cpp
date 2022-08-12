@@ -53,6 +53,7 @@ bool    Client::isCheckRegistration() {
 void    Client::execMessage(Server &server) {
 	Message msg;
 
+    server.checkChannel();
 	parceBuffer(msg);
     if (!msg.isCheckCom()) {
         std::string mes = ": Command don't exist!!! Try again..\r\n";
@@ -60,11 +61,11 @@ void    Client::execMessage(Server &server) {
         return;
     }
     if (msg.getCommand() == "PASS")
-        msg.cmdPass(*this, msg);
+        msg.cmdPass(*this);
     else if (msg.getCommand() == "USER")
-        msg.cmdUser(*this, msg);
+        msg.cmdUser(*this);
     else if (msg.getCommand() == "NICK")
-        msg.cmdNick(*this, msg, server);
+        msg.cmdNick(*this, server);
     else if (msg.getCommand() == "JOIN")
         msg.joinToChannel(*this, server);
     else if (msg.getCommand() == "PRIVMSG")
