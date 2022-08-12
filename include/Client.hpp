@@ -40,7 +40,7 @@ class Client
 
 		void	setStatus(bool status);
 		void	setAddress(const std::string& address);
-		void	setBuffer(const std::string& buffer);
+		void	setBuffer(std::string buffer);
 		void	setNickname(const std::string& nickname);
 		void	setPassword(const std::string& password);
 		void	setUsername(const std::string& username);

@@ -38,7 +38,7 @@ void	Client::setStatus(bool status) { _status = status; }
 
 void	Client::setAddress(const std::string& address) { _address = address; }
 
-void	Client::setBuffer(const std::string& buffer) { _buffer = buffer; }
+void	Client::setBuffer(std::string buffer) { _buffer = buffer; }
 
 void	Client::setNickname(const std::string& nickname) { _nickname = nickname; }
 
@@ -87,21 +87,21 @@ void    Client::execMessage(Server &server) {
 
 void	Client::parceBuffer(Message &msg)
 {
-    std::string com = _buffer;
     std::vector<std::string> param;
 
     size_t pos = 0;
-    while ((pos = com.find(' ')) != std::string::npos) {
-        param.push_back(com.substr(0, pos));
-        com.erase(0, pos + 1);
+    while ((pos = this->_buffer.find(' ')) != std::string::npos) {
+        param.push_back(this->_buffer.substr(0, pos));
+        this->_buffer.erase(0, pos + 1);
     }
     pos = 0;
-    while ((pos = com.find('\n')) != std::string::npos) {
-        param.push_back(com.substr(0, pos));
-        com.erase(0, pos + 1);
+    while ((pos = this->_buffer.find('\n')) != std::string::npos) {
+        param.push_back(this->_buffer.substr(0, pos));
+        this->_buffer.erase(0, pos + 1);
     }
     msg.setCommand(param);
     param.erase(param.begin());
 	msg.setParams(param);
+    this->_buffer.clear();
 }
 
