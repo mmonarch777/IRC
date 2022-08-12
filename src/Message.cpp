@@ -34,7 +34,7 @@ void    Message::setParams(const std::vector<std::string> &param) {
 }
 
 bool    Message::isCheckCom() {
-    std::string	commands[] = {"PASS", "USER", "NICK", "QUIT", "PRIVMSG", "NOTICE", "JOIN", "PART", "KICK", "BOT"};
+    std::string	commands[] = {"PASS", "USER", "NICK", "QUIT", "PRIVMSG", "NOTICE", "JOIN", "PART", "KICK", "BOT", "CAP"};
     if (std::find(std::begin(commands), std::end(commands), _command) != std::end(commands)){
         return true;
     }

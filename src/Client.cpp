@@ -24,15 +24,15 @@ int		Client::getFd() { return _fd; }
 
 bool	Client::getStatus() { return _status; }
 
-std::string	Client::getAddress() { return _address; }
+std::string&	Client::getAddress() { return _address; }
 
-std::string	Client::getBuffer() { return _buffer; }
+std::string&	Client::getBuffer() { return _buffer; }
 
-std::string	Client::getNickname() { return _nickname; }
+std::string&	Client::getNickname() { return _nickname; }
 
-std::string	Client::getPassword() { return _password; }
+std::string&	Client::getPassword() { return _password; }
 
-std::string Client::getUsername() { return _username; }
+std::string& Client::getUsername() { return _username; }
 
 void	Client::setStatus(bool status) { _status = status; }
 
@@ -56,7 +56,7 @@ void    Client::execMessage(Server &server) {
     server.checkChannel();
 	parceBuffer(msg);
     if (!msg.isCheckCom()) {
-        std::string mes = ": Command don't exist!!! Try again..\r\n";
+        std::string mes = msg.getCommand() + ": Command don't exist!!! Try again..\r\n";
         send(this->_fd, mes.c_str(), mes.length() + 1, 0);
         return;
     }
