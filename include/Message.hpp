@@ -7,7 +7,7 @@
 # include "Channel.hpp"
 # include <sstream>
 
-# define WELCOME                1
+# define WELCOME                001
 
 # define ERR_NORECIPIENT        411
 # define ERR_ERRONEUSNICKNAME	432

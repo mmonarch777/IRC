@@ -22,21 +22,21 @@ class Client
 	private:
 		int					    _fd;
 		bool				    _status;
-		std::string			    _address;
-		std::string			    _buffer;
-		std::string			    _nickname;
-		std::string			    _password;
-		std::string			    _username;
+		std::string		    _address;
+		std::string		    _buffer;
+		std::string		    _nickname;
+		std::string		    _password;
+		std::string		    _username;
 //		std::vector<Channel>	_channels;
 	
 	public:
 		int			getFd();
 		bool		getStatus();
-		std::string	getAddress();
-		std::string	getBuffer();
-		std::string	getNickname();
-		std::string	getPassword();
-		std::string getUsername();
+		std::string&	getAddress();
+		std::string&	getBuffer();
+		std::string&	getNickname();
+		std::string&	getPassword();
+		std::string& getUsername();
 
 		void	setStatus(bool status);
 		void	setAddress(const std::string& address);
