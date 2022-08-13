@@ -36,6 +36,7 @@ class Channel;
 class Message {
     private:
         std::string                 _command;
+        std::vector<std::string>    _allCommand;
         std::vector<std::string>    _params;
 
     public:
@@ -50,7 +51,11 @@ class Message {
 
         void    setCommand(const std::vector<std::string> &param);
         void    setParams(const std::vector<std::string> &param);
+        void    setAllCommand(const std::vector<std::string> &param);
         bool    isCheckCom();
+
+        std::vector<std::string> &getVector();
+        void    clearCommand();
 
 		void	sendReply(Client& client, int flag);
 		void	sendError(Client& client, Message& msg, int error);

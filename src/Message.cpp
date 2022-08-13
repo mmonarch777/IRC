@@ -32,6 +32,22 @@ void    Message::setCommand(const std::vector<std::string> &param) {
 void    Message::setParams(const std::vector<std::string> &param) {
     _params = param;
 }
+void    Message::setAllCommand(const std::vector<std::string> &param) {
+    _allCommand = param;
+}
+
+std::vector<std::string> &Message::getVector() {
+    return _allCommand;
+}
+
+void Message::clearCommand() {
+    if (_command.length()) {
+        _command.clear();
+    }
+    if (!_params.empty()) {
+        _params.clear();
+    }
+}
 
 bool    Message::isCheckCom() {
     std::string	commands[] = {"PASS", "USER", "NICK", "QUIT", "PRIVMSG", "NOTICE", "JOIN", "PART", "KICK", "BOT", "CAP"};
@@ -122,14 +138,13 @@ void	Message::cmdPass(Client& client) {
         sendError(client, *this, ERR_NEEDMOREPARAMS);
     else if (client.getStatus() && !client.getNickname().empty())
         sendError(client, *this, ERR_ALREADYREGISTRED);
-    else if (!client.getStatus() && this->_params[0] != client.getPassword())
+    else if (!client.getStatus() && (this->_params[0] != client.getPassword() && this->_params[0] != (":" + client.getPassword())))
         sendError(client, *this, ERR_PASSWDMISMATCH);
     else
         client.setStatus(true);
 }
 
 void	Message::cmdNick(Client& client, Server &server) {
-    std::string nick;
 
     if (this->_params.empty())
         sendError(client, *this, ERR_NEEDMOREPARAMS);
@@ -138,9 +153,14 @@ void	Message::cmdNick(Client& client, Server &server) {
     else if (this->checkDuplicate(server)) //проверить, есть ли ник в списке зарегестрированных
         sendError(client, *this, ERR_NICKNAMEINUSE);
     else {
-        nick = ":" + client.getNickname() + "!" + client.getUsername() + "@"
-                + client.getAddress() + " " + this->_command + " :" + this->_params.front() + "\r\n";
-        client.setNickname(this->_params.front());
+        if (client.getStatus() && !client.getUsername().empty()) {
+            client.setNickname(this->_params[0]);
+            sendReply(client, WELCOME);
+            std::string string = "NEW CLIENT: USER " + client.getUsername() + ", NICK " + client.getNickname();
+            std::cout << string << std::endl;
+        } else {
+            client.setNickname(this->_params.front());
+        }
     }
 }
 
@@ -166,7 +186,7 @@ void	Message::cmdUser(Client& client) {
             std::string string = "NEW CLIENT: USER " + client.getUsername() + ", NICK " + client.getNickname();
             std::cout << string << std::endl;
         } else {
-            sendError(client, *this, ERR_NOTREGISTERED);
+            client.setUsername(this->_params[0]);
         }
 	}
 }

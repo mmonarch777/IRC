@@ -22,6 +22,7 @@ class Client
 	private:
 		int					    _fd;
 		bool				    _status;
+        bool                    _registration;
 		std::string		    _address;
 		std::string		    _buffer;
 		std::string		    _nickname;
@@ -40,10 +41,12 @@ class Client
 
 		void	setStatus(bool status);
 		void	setAddress(const std::string& address);
-		void	setBuffer(std::string buffer);
+		void	setBuffer(const std::string& buffer);
 		void	setNickname(const std::string& nickname);
 		void	setPassword(const std::string& password);
 		void	setUsername(const std::string& username);
+        void    setRegistration(bool reg);
+        bool    getRegistration();
         bool    isCheckRegistration();
 
 		void    execMessage(Server &server);
