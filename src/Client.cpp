@@ -76,7 +76,11 @@ void    Client::execMessage(Server &server) {
         }
         pos = 0;
         while ((pos = (*begin).find('\n')) != std::string::npos) {
-            param.push_back((*begin).substr(0, pos - 1));
+            if ((*begin)[(*begin).length() - 2] == '\r') {
+                param.push_back((*begin).substr(0, pos - 1));
+            } else {
+                param.push_back((*begin).substr(0, pos));
+            }
             (*begin).erase(0, pos + 1);
         }
         msg.clearCommand();
@@ -117,26 +121,6 @@ void    Client::execMessage(Server &server) {
     }
 
 }
-
-//void	Client::parceBuffer(Message &msg)
-//{
-//    std::vector<std::string> param;
-//
-//    size_t pos = 0;
-//    while ((pos = this->_buffer.find(' ')) != std::string::npos) {
-//        param.push_back(this->_buffer.substr(0, pos));
-//        this->_buffer.erase(0, pos + 1);
-//    }
-//    pos = 0;
-//    while ((pos = this->_buffer.find('\n')) != std::string::npos) {
-//        param.push_back(this->_buffer.substr(0, pos));
-//        this->_buffer.erase(0, pos + 1);
-//    }
-//    msg.setCommand(param);
-//    param.erase(param.begin());
-//	msg.setParams(param);
-//    this->_buffer.clear();
-//}
 
 void	Client::parceBuffer(Message &msg)
 {
