@@ -119,6 +119,8 @@ void	Server::continueConnection(size_t &i) {
 	_fds[i].revents = 0;
 	if (!readed) {
 		std::cout << "Client #" << _fds[i].fd << " Disconnected!" << std::endl; //работатет некорректно
+        client.setBuffer("QUIT");
+        client.execMessage(*this);
 	    _clients.erase(_clients.begin() + (int)i - 1);
 		_fds[i].fd = -1;
 		_connections -= 1;

@@ -464,6 +464,28 @@ void Message::quiteFromServer(Client &client, Server &server) {
             break;
         }
     }
+    std::vector<Channel> &channel = server.getVectorCh();
+    std::vector<Channel>::iterator start = channel.begin();
+    std::vector<Channel>::iterator end = channel.end();
+    for (;start != end; start++) {
+        if ((*start).isCheckCurFd(client.getFd())) {
+            (*start).delClientsFd(client.getFd());
+            if ((*start).getAdminNick() == client.getNickname()) {
+                if ((*start).getClientsFd().empty()) {
+                    channel.erase(start);
+                    std::cout << ": Channel " << (*start).getName() << " was remove" << "\r\n";
+                } else {
+                    Client &refClient = server.getClient(*(*start).getClientsFd().begin());
+                    (*start).setAdminFd(refClient.getFd());
+                    (*start).setAdminNick(refClient.getNickname());
+                }
+            }
+            std::string str = ": You left the channel " + this->_params.front() + " \r\n";
+            send(client.getFd(), str.c_str(), str.length() + 1, 0);
+            str = ": " + client.getNickname() + " LEFT the channel " + this->_params.front() + "\r\n";
+            sendAllToChannel(client, (*start).getClientsFd(), str);
+        }
+    }
     server.incrementConnection(-1);
     close(client.getFd());
 }
