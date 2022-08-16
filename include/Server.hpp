@@ -12,10 +12,12 @@
 # include <unistd.h>
 # include "Client.hpp"
 # include "Channel.hpp"
+# include "Bot.hpp"
 
 # define BUFFER_SIZE	512
 # define MAX_EVENTS		10
 
+class Bot;
 class Client;
 class Channel;
 
@@ -29,6 +31,7 @@ class Server {
 		sockaddr_in				_hints;
 		std::vector<Client>	    _clients;
         std::vector<Channel>    _channel;
+        Bot                     *_bot;
 
 	public:
 		Server();
@@ -49,6 +52,7 @@ class Server {
 		void	removeServer(void);
         void    incrementConnection(int nb);
         int     getServerFd();
+        Bot     *getBot();
         struct pollfd &getFds(int fd);
 
 		void	error(const char* error);

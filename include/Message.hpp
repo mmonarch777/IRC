@@ -77,4 +77,5 @@ class Message {
         void    outFromChannel(Client &client, Server &server);
         void    kickFromChannel(Client &client, Server &server);
         void    quiteFromServer(Client &client, Server &server);
+        void    botCommands(Client &client, Server &server);
 };

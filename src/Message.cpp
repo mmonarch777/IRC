@@ -49,6 +49,11 @@ void Message::clearCommand() {
     }
 }
 
+void    Message::botCommands(Client &client, Server &server) {
+    if (_params.empty()) { server.getBot()->getInfoBot(client, server);}
+    else if (_params[0] == "CLIENTS_INFO") { server.getBot()->getInfoClient(client, server);}
+}
+
 bool    Message::isCheckCom() {
     std::string	commands[] = {"PASS", "USER", "NICK", "QUIT", "PRIVMSG", "NOTICE", "JOIN", "PART", "KICK", "BOT", "CAP"};
     if (std::find(std::begin(commands), std::end(commands), _command) != std::end(commands)){

@@ -33,6 +33,10 @@ int Server::getServerFd() {
     return _fds[0].fd;
 }
 
+Bot *Server::getBot() {
+    return _bot;
+}
+
 void	Server::start() {
 	g_status = true;
 	signal(SIGINT, &sighandler);

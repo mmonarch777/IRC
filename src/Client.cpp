@@ -102,6 +102,7 @@ void    Client::execMessage(Server &server) {
         else if (msg.getCommand() == "NOTICE") { msg.privMsg(*this, server);}
         else if (msg.getCommand() == "KICK") { msg.kickFromChannel(*this, server);}
         else if (msg.getCommand() == "QUIT") { msg.quiteFromServer(*this, server);}
+        else if (msg.getCommand() == "BOT") { msg.botCommands(*this, server);}
         if (!getRegistration() && isCheckRegistration()) {
 	    	msg.sendReply(*this, RPL_MOTDSTART);
 	    	msg.sendReply(*this, RPL_MOTD);

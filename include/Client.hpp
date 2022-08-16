@@ -31,13 +31,14 @@ class Client
 //		std::vector<Channel>	_channels;
 	
 	public:
-		int			getFd();
-		bool		getStatus();
+		int			    getFd();
+		bool		    getStatus();
 		std::string&	getAddress();
 		std::string&	getBuffer();
 		std::string&	getNickname();
 		std::string&	getPassword();
-		std::string& getUsername();
+		std::string&    getUsername();
+        bool            getRegistration();
 
 		void	setStatus(bool status);
 		void	setAddress(const std::string& address);
@@ -46,7 +47,6 @@ class Client
 		void	setPassword(const std::string& password);
 		void	setUsername(const std::string& username);
         void    setRegistration(bool reg);
-        bool    getRegistration();
         bool    isCheckRegistration();
 
 		void    execMessage(Server &server);
