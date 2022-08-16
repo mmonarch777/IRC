@@ -219,14 +219,18 @@ void Message::privMsg(Client &client, Server &server) {
         sendError(client, *this, ERR_NEEDMOREPARAMS);
         return ;
     }
-    std::vector<Client> &tmp = server.getVectorCl();
-    std::vector<Client>::iterator it = tmp.begin();
-    std::vector<Client>::iterator ite = tmp.end();
-    for (; it != ite; it++) {
-        if ((*it).getNickname() == this->_params.front()) {
-            msg = ":" + client.getNickname() + "!" + client.getUsername() + "@127.0.0.1 " + getStrParams(1) + "\r\n";
-            send((*it).getFd(), msg.c_str(), msg.length() + 1, 0);
-            return;
+    if (_params[0][0] == '#') {
+        msgToChannel(client, server);
+    } else {
+        std::vector<Client> &tmp = server.getVectorCl();
+        std::vector<Client>::iterator it = tmp.begin();
+        std::vector<Client>::iterator ite = tmp.end();
+        for (; it != ite; it++) {
+            if ((*it).getNickname() == this->_params.front()) {
+                msg = ":" + client.getNickname() + "!" + client.getUsername() + "@127.0.0.1 " + "PRIVMSG " + _params[0] + " " + getStrParams(1) + "\r\n";
+                send((*it).getFd(), msg.c_str(), msg.length(), 0);
+                return;
+            }
         }
     }
     sendError(client, *this, ERR_NORECIPIENT);
@@ -252,16 +256,15 @@ void Message::msgToChannel(Client &client, Server &server) {
     for (; it != ite; it++) {
         if ((*it).getName() == this->_params.front()) {
             if ((*it).getAdminNick() == client.getNickname()) {
-                std::string string = ": @" + client.getNickname() + "! " + getStrParams(1) + "\n\r";
+                std::string string = ":@" + client.getNickname() + "!" + client.getUsername() + "@127.0.0.1 " + "PRIVMSG " + _params[0] + " " + getStrParams(1) + "\r\n";
                 sendAllToChannel(client, (*it).getClientsFd(), string);
             } else {
-                std::string string = ": " + client.getNickname() + "! " + getStrParams(1) + "\n\r";
+                std::string string = ":" + client.getNickname() + "!" + client.getUsername() + "@127.0.0.1 " + "PRIVMSG " + _params[0] + " " + getStrParams(1) + "\r\n";
                 sendAllToChannel(client, (*it).getClientsFd(), string);
             }
             return;
         }
     }
-    sendError(client, *this, ERR_NORECIPIENT);
 }
 
 std::string Message::getStrParams(int nb) {

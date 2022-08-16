@@ -93,30 +93,21 @@ void    Client::execMessage(Server &server) {
             send(this->_fd, mes.c_str(), mes.length() + 1, 0);
             return;
         }
-        if (msg.getCommand() == "PASS")
-            msg.cmdPass(*this);
-        else if (msg.getCommand() == "USER")
-            msg.cmdUser(*this);
-        else if (msg.getCommand() == "NICK")
-            msg.cmdNick(*this, server);
-        else if (msg.getCommand() == "JOIN")
-            msg.joinToChannel(*this, server);
-        else if (msg.getCommand() == "PRIVMSG")
-            msg.privMsg(*this, server);
-        else if (msg.getCommand() == "PART")
-            msg.outFromChannel(*this, server);
-        else if (msg.getCommand() == "NOTICE")
-            msg.msgToChannel(*this, server);
-        else if (msg.getCommand() == "KICK")
-            msg.kickFromChannel(*this, server);
-        else if (msg.getCommand() == "QUIT")
-            msg.quiteFromServer(*this, server);
-    if (!getRegistration() && isCheckRegistration()) {
-		msg.sendReply(*this, RPL_MOTDSTART);
-		msg.sendReply(*this, RPL_MOTD);
-		msg.sendReply(*this, RPL_ENDOFMOTD);
-        setRegistration(true);
-	}
+        if (msg.getCommand() == "PASS") { msg.cmdPass(*this);}
+        else if (msg.getCommand() == "USER") { msg.cmdUser(*this);}
+        else if (msg.getCommand() == "NICK") { msg.cmdNick(*this, server);}
+        else if (msg.getCommand() == "JOIN") { msg.joinToChannel(*this, server);}
+        else if (msg.getCommand() == "PRIVMSG") { msg.privMsg(*this, server);}
+        else if (msg.getCommand() == "PART") { msg.outFromChannel(*this, server);}
+        else if (msg.getCommand() == "NOTICE") { msg.privMsg(*this, server);}
+        else if (msg.getCommand() == "KICK") { msg.kickFromChannel(*this, server);}
+        else if (msg.getCommand() == "QUIT") { msg.quiteFromServer(*this, server);}
+        if (!getRegistration() && isCheckRegistration()) {
+	    	msg.sendReply(*this, RPL_MOTDSTART);
+	    	msg.sendReply(*this, RPL_MOTD);
+	    	msg.sendReply(*this, RPL_ENDOFMOTD);
+            setRegistration(true);
+	    }
         begin++;
     }
 
