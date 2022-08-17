@@ -124,7 +124,6 @@ void	Server::continueConnection(size_t &i) {
 	if (!readed) {
         client.setBuffer("QUIT\n");
         client.execMessage(*this);;
-		std::cout << "Client #" << client.getFd() << " Disconnected!" << std::endl; //работатет некорректно
         return;
 	}
 	buf[readed] = 0;
