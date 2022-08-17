@@ -14,22 +14,28 @@ void Bot::getInfoClient(Client &client, Server &server) {
             if (onlyOne == 1) {
                 onlyOne = 0;
                 std::string str = "-----------------------------\r\n";
-                send(fd, str.c_str(), str.length(), 0);
+                std::string str2 = ":" + client.getNickname() + "!" + client.getUsername() + "@127.0.0.1 " + "PRIVMSG " + client.getNickname() + " " + str;
+                send(fd, str2.c_str(), str2.length(), 0);
                 str = "|FD   |NICK      |USER      |\r\n";
-                send(fd, str.c_str(), str.length(), 0);
+                str2 = ":" + client.getNickname() + "!" + client.getUsername() + "@127.0.0.1 " + "PRIVMSG " + client.getNickname() + " " + str;
+                send(fd, str2.c_str(), str2.length(), 0);
                 str = "----------------------------\r\n";
-                send(fd, str.c_str(), str.length(), 0);
+                str2 = ":" + client.getNickname() + "!" + client.getUsername() + "@127.0.0.1 " + "PRIVMSG " + client.getNickname() + " " + str;
+                send(fd, str2.c_str(), str2.length(), 0);
             }
             std::string str = "|" + getStrFd((*it).getFd()) + "|" + getLine((*it).getNickname()) + "|" + getLine((*it).getUsername()) + "|\r\n";
-            send(fd, str.c_str(), str.length(), 0);
+            std::string str2 = ":" + client.getNickname() + "!" + client.getUsername() + "@127.0.0.1 " + "PRIVMSG " + client.getNickname() + " " + str;
+            send(fd, str2.c_str(), str2.length(), 0);
         }
     }
     if (onlyOne == 0) {
         std::string str = "-----------------------------\r\n";
-        send(fd, str.c_str(), str.length(), 0);
+        std::string str2 = ":" + client.getNickname() + "!" + client.getUsername() + "@127.0.0.1 " + "PRIVMSG " + client.getNickname() + " " + str;
+        send(fd, str2.c_str(), str2.length(), 0);
     } else {
         std::string str = "Server empty..\r\n";
-        send(fd, str.c_str(), str.length(), 0);
+        std::string str2 = ":" + client.getNickname() + "!" + client.getUsername() + "@127.0.0.1 " + "PRIVMSG " + client.getNickname() + " " + str;
+        send(fd, str2.c_str(), str2.length(), 0);
     }
 }
 
@@ -61,5 +67,6 @@ std::string Bot::getStrFd(int fd) {
 void Bot::getInfoBot(Client &client, Server &server) {
     (void)server;
     std::string str = "Hellow! My name is Bot:)\r\nI have next commands:\r\nCLIENTS_INFO - information about clients on server.\n\r";
-    send(client.getFd(), str.c_str(), str.length(), 0);
+    std::string str2 = ":" + client.getNickname() + "!" + client.getUsername() + "@127.0.0.1 " + "PRIVMSG " + client.getNickname() + " " + str;
+    send(client.getFd(), str2.c_str(), str2.length(), 0);
 }
