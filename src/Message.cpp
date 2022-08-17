@@ -365,14 +365,13 @@ void Message::outFromChannel(Client &client, Server &server) {
     if (!client.isCheckRegistration()) {
         sendError(client, *this, ERR_NOTREGISTERED);
         return;
-    }else if (this->_params[0][0] != '#') {
-        sendError(client, *this, ERR_BADCHANNELKEY);
-        return;
-    } else if (this->_params.empty()) {
+    }  else if (this->_params.empty()) {
         sendError(client, *this, ERR_NEEDMOREPARAMS);
         return;
+    } else if (this->_params[0][0] != '#') {
+        sendError(client, *this, ERR_BADCHANNELKEY);
+        return;
     }
-
     if (!checkChannel(server, this->_params.front())) {
         sendError(client, *this, ERR_NOSUCHCHANNEL);
     } else {
