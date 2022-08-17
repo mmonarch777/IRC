@@ -262,10 +262,10 @@ void Message::msgToChannel(Client &client, Server &server) {
         if ((*it).getName() == this->_params.front()) {
             if ((*it).getAdminNick() == client.getNickname()) {
                 std::string string = ":@" + client.getNickname() + "!" + client.getUsername() + "@127.0.0.1 " + "PRIVMSG " + _params[0] + " " + getStrParams(1) + "\r\n";
-                sendAllToChannel(client, (*it).getClientsFd(), string);
+                sendAllToChannel(client, (*it).getClientsFd(), string, -1);
             } else {
                 std::string string = ":" + client.getNickname() + "!" + client.getUsername() + "@127.0.0.1 " + "PRIVMSG " + _params[0] + " " + getStrParams(1) + "\r\n";
-                sendAllToChannel(client, (*it).getClientsFd(), string);
+                sendAllToChannel(client, (*it).getClientsFd(), string, -1);
             }
             return;
         }
@@ -314,12 +314,12 @@ void    Message::joinToChannel(Client &client, Server &server) {
                     }
                     (*it).setClientsFd(client.getFd());
                     std::string str = ": You JOIN to channel " + this->_params.front() + ". Channel admin is " + (*it).getAdminNick() + " \r\n";
-                    send(client.getFd(), str.c_str(), str.length() + 1, 0);
+                    send(client.getFd(), str.c_str(), str.length(), 0);
                     str = ": " + client.getNickname() + " JOIN to channel " + this->_params.front() + "\r\n";
-                    sendAllToChannel(client, (*it).getClientsFd(), str);
+                    sendAllToChannel(client, (*it).getClientsFd(), str, -1);
                 } else {
                     std::string string = ": You are already in the channel " + this->_params.front();
-                    send(client.getFd(), string.c_str(), string.length() + 1, 0);
+                    send(client.getFd(), string.c_str(), string.length(), 0);
                 }
                 return;
             }
@@ -350,12 +350,12 @@ void Message::creatNewChannel(Server &server, Client &client) {
     send(client.getFd(), tmp.c_str(), tmp.length() + 1, 0);
 }
 
-void Message::sendAllToChannel(Client &client, std::vector<int> &fds, std::string str) {
+void Message::sendAllToChannel(Client &client, std::vector<int> &fds, std::string str, int fd) {
     std::vector<int>::iterator it = fds.begin();
     std::vector<int>::iterator ite = fds.end();
 
     for (; it != ite; it++) {
-        if (*it != client.getFd()) {
+        if (*it != client.getFd() && *it != fd) {
             send(*it, str.c_str(), str.length() + 1, 0);
         }
     }
@@ -397,7 +397,7 @@ void Message::outFromChannel(Client &client, Server &server) {
                     std::string str = ": You left the channel " + this->_params.front() + " \r\n";
                     send(client.getFd(), str.c_str(), str.length() + 1, 0);
                     str = ": " + client.getNickname() + " LEFT the channel " + this->_params.front() + "\r\n";
-                    sendAllToChannel(client, (*it).getClientsFd(), str);
+                    sendAllToChannel(client, (*it).getClientsFd(), str, -1);
                 } else {
                     sendError(client, *this, ERR_NOTONCHANNEL);
                 }
@@ -434,17 +434,16 @@ void Message::kickFromChannel(Client &client, Server &server) {
                     }
                     if (fd == client.getFd()) {
                         std::string err = "You can't KICK yourself\r\n";
-                        send(fd, err.c_str(), err.length() + 1, 0);
+                        send(fd, err.c_str(), err.length(), 0);
                         return;
                     }
                     if (fd) {
                         (*it).delClientsFd(fd);
                         std::string str = ": You have been removed from the channel " + this->_params.front() + ". Reason: " +
                                 getStrParams(2) + " \r\n";
-                        send(client.getFd(), str.c_str(), str.length() + 1, 0);
-                        str = ": " + this->_params[1] + " was removed from the channel " + this->_params.front() + ". Reason: " +
-                                getStrParams(2) + " \r\n";
-                        sendAllToChannel(client, (*it).getClientsFd(), str);
+                        send(fd, str.c_str(), str.length(), 0);
+                        str = ": " + this->_params[1] + " was removed from the channel " + this->_params.front() + " \r\n";
+                        sendAllToChannel(client, (*it).getClientsFd(), str, fd);
                     } else {
                         sendError(client, *this, ERR_NOTFOUNDCLIENT);
                     }
@@ -488,7 +487,7 @@ void Message::quiteFromServer(Client &client, Server &server) {
             std::string str = ": You left the channel " + this->_params.front() + " \r\n";
             send(client.getFd(), str.c_str(), str.length() + 1, 0);
             str = ": " + client.getNickname() + " LEFT the channel " + this->_params.front() + "\r\n";
-            sendAllToChannel(client, (*start).getClientsFd(), str);
+            sendAllToChannel(client, (*start).getClientsFd(), str, -1);
         }
     }
     server.incrementConnection(-1);

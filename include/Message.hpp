@@ -70,7 +70,7 @@ class Message {
         void    joinToChannel(Client &client, Server &server);
         bool    checkChannel(Server &server, std::string channelName);
         void    creatNewChannel(Server &server, Client &client);
-        void    sendAllToChannel(Client &client, std::vector<int> &fds, std::string str);
+        void    sendAllToChannel(Client &client, std::vector<int> &fds, std::string str, int fd);
 
         void    privMsg(Client &client, Server &server);
         void    msgToChannel(Client &client, Server &server);
